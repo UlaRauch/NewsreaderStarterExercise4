@@ -3,6 +3,8 @@ package at.ac.fhcampuswien.newsanalyzer.ui;
 
 import at.ac.fhcampuswien.newsanalyzer.ctrl.Controller;
 import at.ac.fhcampuswien.newsanalyzer.ctrl.NewsAPIException;
+import at.ac.fhcampuswien.newsanalyzer.downloader.ParallelDownloader;
+import at.ac.fhcampuswien.newsanalyzer.downloader.SequentialDownloader;
 import at.ac.fhcampuswien.newsapi.NewsApi;
 import at.ac.fhcampuswien.newsapi.NewsApiBuilder;
 import at.ac.fhcampuswien.newsapi.enums.Country;
@@ -11,6 +13,8 @@ import at.ac.fhcampuswien.newsapi.enums.Endpoint;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Scanner;
 
 public class UserInterface {
 
@@ -47,9 +51,7 @@ public class UserInterface {
 		menu.insert("x", "Shortest author name", this::getShortestNameOfAuthors);	// Exercise 3
 		menu.insert("y", "Get article count", this::getArticleCount);	// Exercise 3
 		menu.insert("z", "Sort by longest title", this::getSortArticlesByLongestTitle); // Exercise 3
-		menu.insert("g", "Download URLs", () -> {
-			//Todo
-		});
+		menu.insert("g", "Download URLs", this::downloadArticles);
 		menu.insert("q", "Quit", null);
 		Runnable choice;
 		while ((choice = menu.exec()) != null) {
@@ -90,6 +92,52 @@ public class UserInterface {
 			}
 		}
 		return number;
+	}
+
+	/**
+	 * create a list of URLs
+	 */
+	private List<String> getdownloadURLs() {
+		List<String> urlList = null;
+		try {
+			urlList = ctrl.downloadURLs();
+			System.out.println("download URLs:");
+			System.out.println(urlList);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}//TODO: NewsAPIException einfach in Exception mitfangen?
+
+		return urlList;
+	}
+
+	/**
+	 * download the articles
+	 */
+	private void downloadArticles() {
+		System.out.println("for sequential download type 's', for parallel type 'p', or any other key to get back to the menu");
+		Scanner scanner = new Scanner(System.in);
+		String choice = scanner.nextLine();
+		int numberDownloads = 0;
+		long start = 0;
+		long end = 0;
+		if (choice.equals("s")) {
+			SequentialDownloader seq = new SequentialDownloader();
+			start = System.currentTimeMillis();
+			numberDownloads = seq.process(getdownloadURLs());
+			end = System.currentTimeMillis();
+		} if (choice.equals("p")) {
+			ParallelDownloader par = new ParallelDownloader();
+			start = System.currentTimeMillis();
+			try {
+				numberDownloads = par.process(getdownloadURLs());
+			} catch (NewsAPIException e) {
+				e.getMessage(); //TODO: warum?
+				e.printStackTrace();
+			}
+			end = System.currentTimeMillis();
+		} //TODO error handling für unsinnige eingaben?
+		System.out.println(numberDownloads + " articles downloaded");
+		System.out.println("Time: " + (end-start) + " ms");
 	}
 
 	/**

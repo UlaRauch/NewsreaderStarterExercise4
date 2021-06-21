@@ -1,5 +1,7 @@
 package at.ac.fhcampuswien.newsanalyzer.downloader;
 
+import at.ac.fhcampuswien.newsanalyzer.ctrl.NewsAPIException;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,9 +13,9 @@ import java.util.Objects;
 public abstract class Downloader {
 
     public static final String HTML_EXTENTION = ".html";
-    public static final String DIRECTORY_DOWNLOAD = "./download/";
+    public static final String DIRECTORY_DOWNLOAD = "C:\\Users\\urauc\\Documents\\Ausbildung\\FH\\Programmieren\\PROG2\\Exercises\\prog2-uebung4-newsreader-multithreading\\src\\download\\";
 
-    public abstract int process(List<String> urls);
+    public abstract int process(List<String> urls) throws NewsAPIException;
 
     public String saveUrl2File(String urlString) {
         InputStream is = null;

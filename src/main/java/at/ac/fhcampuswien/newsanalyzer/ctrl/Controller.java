@@ -1,12 +1,17 @@
 package at.ac.fhcampuswien.newsanalyzer.ctrl;
 
+import at.ac.fhcampuswien.newsanalyzer.downloader.ParallelDownloader;
+import at.ac.fhcampuswien.newsanalyzer.downloader.SequentialDownloader;
 import at.ac.fhcampuswien.newsapi.NewsApi;
 import at.ac.fhcampuswien.newsapi.beans.Article;
 import at.ac.fhcampuswien.newsapi.beans.NewsResponse;
 import at.ac.fhcampuswien.newsapi.beans.Source;
+
+import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Controller {
@@ -84,4 +89,14 @@ public class Controller {
 				.map(stringListEntry -> stringListEntry.getKey() + " " + stringListEntry.getValue().size())
 				.orElseThrow();
 	}
+
+	public List<String> downloadURLs() throws NewsAPIException {
+		if (articles == null)
+			throw new NewsAPIException("Load data first");
+
+		return articles.stream()
+				.map(Article::getUrl)
+				.collect(Collectors.toList());
+	}
+
 }
