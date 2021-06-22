@@ -51,7 +51,7 @@ public class UserInterface {
 		menu.insert("x", "Shortest author name", this::getShortestNameOfAuthors);	// Exercise 3
 		menu.insert("y", "Get article count", this::getArticleCount);	// Exercise 3
 		menu.insert("z", "Sort by longest title", this::getSortArticlesByLongestTitle); // Exercise 3
-		menu.insert("g", "Download URLs", this::downloadArticles);
+		menu.insert("g", "Download URLs", this::getDownloadArticles);
 		menu.insert("q", "Quit", null);
 		Runnable choice;
 		while ((choice = menu.exec()) != null) {
@@ -113,7 +113,7 @@ public class UserInterface {
 	/**
 	 * download the articles
 	 */
-	private void downloadArticles() {
+	private void getDownloadArticles() {
 		System.out.println("for sequential download type 's', for parallel type 'p', or any other key to get back to the menu");
 		Scanner scanner = new Scanner(System.in);
 		String choice = scanner.nextLine();
@@ -121,21 +121,28 @@ public class UserInterface {
 		long start = 0;
 		long end = 0;
 		if (choice.equals("s")) {
-			SequentialDownloader seq = new SequentialDownloader();
-			start = System.currentTimeMillis();
-			numberDownloads = seq.process(getdownloadURLs());
-			end = System.currentTimeMillis();
-		} if (choice.equals("p")) {
-			ParallelDownloader par = new ParallelDownloader();
 			start = System.currentTimeMillis();
 			try {
-				numberDownloads = par.process(getdownloadURLs());
+				numberDownloads = ctrl.downloadArticles(new SequentialDownloader());
 			} catch (NewsAPIException e) {
-				e.getMessage(); //TODO: warum?
+				System.out.println(e.getMessage());
+				e.printStackTrace();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			end = System.currentTimeMillis();
-		} //TODO error handling für unsinnige eingaben?
+		} if (choice.equals("p")) {
+			start = System.currentTimeMillis();
+			try {
+				numberDownloads = ctrl.downloadArticles(new ParallelDownloader());
+			} catch (NewsAPIException e) {
+				e.getMessage(); //TODO: warum?
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			end = System.currentTimeMillis();
+		}
 		System.out.println(numberDownloads + " articles downloaded");
 		System.out.println("Time: " + (end-start) + " ms");
 	}

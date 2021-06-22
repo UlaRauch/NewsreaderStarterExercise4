@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.newsanalyzer.ctrl;
 
+import at.ac.fhcampuswien.newsanalyzer.downloader.Downloader;
 import at.ac.fhcampuswien.newsanalyzer.downloader.ParallelDownloader;
 import at.ac.fhcampuswien.newsanalyzer.downloader.SequentialDownloader;
 import at.ac.fhcampuswien.newsapi.NewsApi;
@@ -97,6 +98,13 @@ public class Controller {
 		return articles.stream()
 				.map(Article::getUrl)
 				.collect(Collectors.toList());
+	}
+
+	public int downloadArticles(Downloader downloader) throws NewsAPIException {
+		if (articles == null)
+			throw new NewsAPIException("Load data first");
+		List<String> urls = downloadURLs();
+		return downloader.process(urls);
 	}
 
 }

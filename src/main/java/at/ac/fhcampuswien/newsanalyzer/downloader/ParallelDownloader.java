@@ -27,21 +27,27 @@ public class ParallelDownloader extends Downloader {
             }
 
             //let threads go to work
-            List<Future<String>> futureFiles;
+            List<Future<String>> futureFiles = null;
             try {
                 futureFiles = pool.invokeAll(callableList);
             } catch (Exception e) {
                 throw new NewsAPIException(e.getMessage());
             }
-
             //count number of downloaded articles
-            for (Future<String> f : futureFiles) {
-                if (f != null) {
-                    downloadedTotal++;
+            finally {
+                if (futureFiles != null) {
+                    for (Future<String> f : futureFiles) {
+                        if (f != null) {
+                            downloadedTotal++;
+                        }
+                    }
                 }
+                /*
+                    if (!pool.isShutdown())
+                    System.out.println("shutdown pool");
+                    */
+                pool.shutdown(); //close pool
             }
-            pool.shutdown(); //close pool
-
         }
         return downloadedTotal;
     }
