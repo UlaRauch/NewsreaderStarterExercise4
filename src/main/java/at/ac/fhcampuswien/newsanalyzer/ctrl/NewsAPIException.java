@@ -7,5 +7,8 @@ public class NewsAPIException extends Exception{
     public NewsAPIException(String message) {
         super(message);
     }
+    public NewsAPIException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

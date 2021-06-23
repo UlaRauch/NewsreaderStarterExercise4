@@ -9,15 +9,16 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public abstract class Downloader {
 
     public static final String HTML_EXTENTION = ".html";
     public static final String DIRECTORY_DOWNLOAD = "C:\\Users\\urauc\\Documents\\Ausbildung\\FH\\Programmieren\\PROG2\\Exercises\\prog2-uebung4-newsreader-multithreading\\src\\download\\";
 
-    public abstract int process(List<String> urls) throws NewsAPIException;
+    public abstract int process(List<String> urls) throws NewsAPIException, ExecutionException, InterruptedException;
 
-    public String saveUrl2File(String urlString) {
+    public String saveUrl2File(String urlString) throws NewsAPIException {
         InputStream is = null;
         OutputStream os = null;
         String fileName = "";
@@ -37,7 +38,7 @@ public abstract class Downloader {
                 os.write(b, 0, length);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new NewsAPIException("There was a problem with reading from url or writing the file: " + e.getMessage() + ", " + e.getCause());
         } finally {
             try {
                 Objects.requireNonNull(is).close();

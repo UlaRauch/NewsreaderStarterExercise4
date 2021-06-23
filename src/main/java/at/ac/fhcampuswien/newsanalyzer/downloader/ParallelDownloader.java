@@ -9,7 +9,7 @@ import java.util.concurrent.*;
 public class ParallelDownloader extends Downloader {
 
     @Override
-    public int process(List<String> urls) throws NewsAPIException {
+    public int process(List<String> urls) throws NewsAPIException, ExecutionException, InterruptedException {
 
         int downloadedTotal = 0;
 
@@ -21,8 +21,8 @@ public class ParallelDownloader extends Downloader {
 
             List<Callable<String>> callableList = new ArrayList<>();
             for (int i = 0; i < numArticles; i++) {
-                int finalIndex = i; //warum wird das benötigt?
-                Callable<String> task = () -> saveUrl2File(urls.get(finalIndex));
+                int finalIndex = i; //why does it have to be final?
+                Callable<String> task = () -> saveUrl2File(urls.get(finalIndex)); //task = save the article from url
                 callableList.add(task);
             }
 
@@ -30,23 +30,22 @@ public class ParallelDownloader extends Downloader {
             List<Future<String>> futureFiles = null;
             try {
                 futureFiles = pool.invokeAll(callableList);
-            } catch (Exception e) {
-                throw new NewsAPIException(e.getMessage());
+            } catch (InterruptedException e) {
+                throw new NewsAPIException("File download has been interrupted: " + e.getMessage(), e.getCause());
             }
             //count number of downloaded articles
             finally {
-                if (futureFiles != null) {
-                    for (Future<String> f : futureFiles) {
-                        if (f != null) {
-                            downloadedTotal++;
-                        }
-                    }
-                }
                 /*
-                    if (!pool.isShutdown())
+             if (!pool.isShutdown())
                     System.out.println("shutdown pool");
                     */
                 pool.shutdown(); //close pool
+            }
+            for (Future<String> f : futureFiles) {
+                if (f != null) {
+                    downloadedTotal++;
+                    System.out.println("Article: " + f.get() + "saved"); // get() throws ExecutionException and InterruptedException - specified in method
+                }
             }
         }
         return downloadedTotal;

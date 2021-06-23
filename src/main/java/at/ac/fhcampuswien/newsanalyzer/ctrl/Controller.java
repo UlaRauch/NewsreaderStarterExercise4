@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class Controller {
@@ -104,7 +105,14 @@ public class Controller {
 		if (articles == null)
 			throw new NewsAPIException("Load data first");
 		List<String> urls = downloadURLs();
-		return downloader.process(urls);
+		int downloadedTotal = 0;
+		try {
+			downloadedTotal = downloader.process(urls);
+		} catch (ExecutionException | InterruptedException e) {
+			//exceptions thrown by .get() method while trying to access future filename
+			throw new NewsAPIException("One or more files could not be downloaded properly: " + e.getMessage(), e.getCause());
+		}
+		return downloadedTotal; //NewsApiException might be thrown with process
 	}
 
 }

@@ -7,6 +7,7 @@ import at.ac.fhcampuswien.newsanalyzer.downloader.ParallelDownloader;
 import at.ac.fhcampuswien.newsanalyzer.downloader.SequentialDownloader;
 import at.ac.fhcampuswien.newsapi.NewsApi;
 import at.ac.fhcampuswien.newsapi.NewsApiBuilder;
+import at.ac.fhcampuswien.newsapi.enums.Category;
 import at.ac.fhcampuswien.newsapi.enums.Country;
 import at.ac.fhcampuswien.newsapi.enums.Endpoint;
 
@@ -105,7 +106,7 @@ public class UserInterface {
 			System.out.println(urlList);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-		}//TODO: NewsAPIException einfach in Exception mitfangen?
+		}
 
 		return urlList;
 	}
@@ -125,9 +126,9 @@ public class UserInterface {
 			try {
 				numberDownloads = ctrl.downloadArticles(new SequentialDownloader());
 			} catch (NewsAPIException e) {
-				System.out.println(e.getMessage());
-				e.printStackTrace();
+				System.err.println(e.getMessage() + e.getCause());
 			} catch (Exception e) {
+				System.err.println("An unexpected exception has occurred: " + e.getCause());
 				e.printStackTrace();
 			}
 			end = System.currentTimeMillis();
@@ -136,9 +137,10 @@ public class UserInterface {
 			try {
 				numberDownloads = ctrl.downloadArticles(new ParallelDownloader());
 			} catch (NewsAPIException e) {
-				e.getMessage(); //TODO: warum?
+				System.out.println(e.getMessage() + " " + e.getCause());
 				e.printStackTrace();
 			} catch (Exception e) {
+				System.err.println("An unexpected exception has occurred: " + e.getCause());
 				e.printStackTrace();
 			}
 			end = System.currentTimeMillis();
